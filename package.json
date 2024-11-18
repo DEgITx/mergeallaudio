@@ -1,0 +1,17 @@
+{
+  "name": "mkvmergeaudio",
+  "version": "1.0.0",
+  "description": "Merge all audio files to mkv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexey Kasyanchuk",
+  "license": "ISC",
+  "bin": {
+    "mkvmergeaudio": "index.js"
+  },
+  "dependencies": {
+    "glob": "^7.2.3"
+  }
+}
