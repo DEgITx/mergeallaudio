@@ -12,6 +12,7 @@
     "mkvmergeaudio": "index.js"
   },
   "dependencies": {
-    "glob": "^7.2.3"
+    "glob": "^7.2.3",
+    "tagslog": "^1.1.6"
   }
 }

@@ -5,6 +5,7 @@ const path = require('path')
 const util = require('util')
 const execFile = util.promisify(require('child_process').execFile);
 const { execSync } = require('child_process');
+require('tagslog')()
 
 let mkvmerge = path.join(__dirname, 'tools/mkvmerge.exe');
 
@@ -29,8 +30,9 @@ const mkvmergePath = findMkvmergeInPath();
 if (mkvmergePath) {
     mkvmerge = mkvmergePath;
 } else {
-    console.log('mkvmerge not found in PATH, using local version if available.');
+    logT('mkvmerge', 'mkvmerge not found in PATH, using local version if available.');
 }
+logT('mkvmerge', mkvmerge)
 
 if (!fs.existsSync(mkvmerge)) {
     throw new Error('Cannot find mkvmerge');
@@ -42,7 +44,7 @@ const merge = async (video, audios) => {
 	if (audios.length == 0) {
 		return;
 	}
-	console.log('merge', video, audios.length === 1 ? audios[0] : audios)
+	logT('merge', `Merging video: ${video} with audios: ${audios.length === 1 ? audios[0] : audios}`);
 
 	const newFile = `${randomName()}.mkv`;
 	await execFile(path.resolve(mkvmerge), [
@@ -70,9 +72,14 @@ const mergeAudios = (videos) => {
 		return
 
 	const videoFileName = path.parse(video).name
-  	glob(`**/${videoFileName}.+(aac|mka|mp3|opus|flac|ogg)`, async (er, audios) => {
+  	glob(`**/*.{aac,mka,mp3,opus,flac,ogg}`, async (er, audios) => {
   		if(!audios)
   			return;
+
+		audios = audios.filter(audio => audio.includes(videoFileName));
+		if (audios.length === 0) {
+			return;
+		}
 
   		await merge(video, audios)
   		mergeAudios(videos)
@@ -81,7 +88,7 @@ const mergeAudios = (videos) => {
 
 if(mkvmerge.includes('snapshot'))
 {
-	console.log('unpack temorary files')
+	logT('mkvmerge', 'Unpacking temporary files');
 	const buffer = fs.readFileSync(mkvmerge)
 	mkvmerge = os.tmpdir() + '/' + path.basename(mkvmerge);
 	fs.writeFileSync(mkvmerge, buffer)
@@ -89,7 +96,7 @@ if(mkvmerge.includes('snapshot'))
 
 onExit = () => {
 	if (mkvmerge === path.join(__dirname, 'tools/mkvmerge.exe')) {
-		console.log('cleanup temporary files');
+		logT('cleanup', 'Cleaning up temporary files');
 		fs.unlinkSync(mkvmerge);
 	}
 }
